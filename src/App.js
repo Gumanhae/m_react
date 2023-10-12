@@ -1,26 +1,31 @@
-
 import React from "react";
-import { useState, useEffect } from "react";
-
-import Button from "./Button";
-import styles from "./App.module.css"
+import {useState, useEffect} from "react";
 
 import { hot } from 'react-hot-loader/root';
 
-function Hello() {
-  useEffect(() => {
-    console.log("Im here!");
-  }, [])
-  return <h1>Hello</h1>;
-}
-
 function App() {
-  const [showing, setShowing] = useState(false);
-  const onClick = () => {setShowing((prev) => !prev)};
+  const [loading, setLoading] = useState(true);
+  const [coins, setCoins] = useState([])
+  useEffect(() => {
+    fetch("https://api.coinpaprika.com/v1/tickers")
+      .then(response => response.json())
+      .then((json) => {
+        setCoins(json);
+        setLoading(false);
+      });
+  }, [])
   return (
     <div>
-      {showing ? <Hello /> : null}
-      <button onClick={onClick}> {showing ? "Hide" : "Show"} </button>
+      <h1>The Coins! {loading ? "" : `(${coins.length})`}</h1>
+      {loading ? <strong>Loading...</strong> : 
+        <select>
+          {coins.map((coin) => (
+            <option>
+              {coin.name} ({coin.symbol}) : ${coin.quotes.USD.price} USD
+            </option>
+            ))}
+        </select>
+      }
     </div>
   )
 }
